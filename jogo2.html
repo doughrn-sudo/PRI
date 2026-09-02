@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio Expert OLX - Mega Drive Edition</title>
+    <style>
+        :root {
+            /* Identidade Visual OLX e TP */
+            --olx-purple: #6e0ad6;
+            --olx-purple-dark: #4b0099;
+            --olx-orange: #f26322;
+            --olx-orange-hover: #d94f11;
+            --tp-blue: #0052cc;
+            --olx-bg: #f2f4f7;
+            --card-bg: #ffffff;
+            --text-main: #121212;
+            --text-muted: #576071;
+            --correct-green: #22c55e;
+            --wrong-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--olx-bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 1100px;
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(110, 10, 214, 0.15);
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--olx-purple);
+            color: #ffffff;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-badge {
+            background-color: var(--olx-orange);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .tp-badge {
+            background-color: var(--tp-blue);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .hud-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+        }
+
+        .audio-toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .audio-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .screen-pad {
+            padding: 40px;
+        }
+
+        .login-box {
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            font-size: 2.2rem;
+            color: var(--olx-purple);
+            margin-bottom: 12px;
+        }
+
+        .login-box p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.2rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--olx-purple);
+        }
+
+        .btn-olx {
+            background-color: var(--olx-orange);
+            color: #ffffff;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-olx:hover {
+            background-color: var(--olx-orange-hover);
+        }
+
+        .btn-olx:active {
+            transform: scale(0.98);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            min-height: 620px;
+        }
+
+        @media (max-width: 850px) {
+            .game-grid { grid-template-columns: 1fr; }
+            .sidebar { border-left: none !important; border-top: 2px solid #e2e8f0; }
+        }
+
+        .chat-area {
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            background-color: #ffffff;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .client-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .client-avatar {
+            width: 55px;
+            height: 55px;
+            background-color: #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 2px solid var(--olx-purple);
+        }
+
+        .hud-metrics-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .timer-badge {
+            background-color: var(--olx-purple);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .paciencia-bar-container {
+            width: 120px;
+            height: 12px;
+            background-color: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .paciencia-fill {
+            height: 100%;
+            width: 100%;
+            background-color: #22c55e;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .chat-messages {
+            padding: 24px;
+            overflow-y: auto;
+            max-height: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-client {
+            background-color: #ffffff;
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .msg-expert {
+            background-color: var(--olx-purple);
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-system {
+            background-color: rgba(110, 10, 214, 0.08);
+            color: var(--olx-purple-dark);
+            align-self: center;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: 1px dashed var(--olx-purple);
+            text-align: center;
+            width: 100%;
+        }
+
+        .options-area {
+            padding: 20px 24px;
+            background-color: #ffffff;
+            border-top: 2px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .opt-btn {
+            background-color: #ffffff;
+            color: var(--text-main);
+            border: 2px solid #cbd5e1;
+            padding: 14px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.05rem;
+            line-height: 1.4;
+            transition: all 0.2s ease;
+            white-space: pre-line;
+        }
+
+        .opt-btn:hover:not([disabled]) {
+            border-color: var(--olx-purple);
+            background-color: rgba(110, 10, 214, 0.04);
+            transform: translateX(4px);
+        }
+
+        .opt-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .sidebar {
+            background-color: #ffffff;
+            border-left: 2px solid #e2e8f0;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .sidebar-title {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .item-card {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .item-title {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--olx-purple);
+        }
+
+        .item-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .btn-item {
+            background-color: var(--olx-purple);
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 4px;
+            transition: background 0.2s;
+        }
+
+        .btn-item:hover:not([disabled]) {
+            background-color: var(--olx-purple-dark);
+        }
+
+        .btn-item:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .card-final {
+            background-color: #f8fafc;
+            border: 2px solid var(--olx-purple);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .info-tag {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin: 8px 0;
+            font-weight: 600;
+        }
+
+        .info-tag span {
+            color: var(--olx-purple);
+            font-weight: 800;
+        }
+
+        .hide { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <header>
+        <div class="brand-container">
+            <div class="brand-title">
+                <span>OLX</span>
+                <span class="brand-badge">Expert Academy</span>
+            </div>
+            <div class="tp-badge">Teleperformance</div>
+        </div>
+
+        <div id="hud-area" class="hud-stats hide">
+            <button id="audio-toggle" class="audio-toggle-btn" onclick="toggleAudio()">🔊 Som: ON</button>
+            <div class="stat-card">👤 <span id="hud-matricula">000000</span></div>
+            <div class="stat-card">⭐ CSAT: <span id="hud-csat">100%</span></div>
+        </div>
+    </header>
+
+    <!-- TELA 1: CADASTRO -->
+    <div id="screen-login" class="screen-pad">
+        <div class="login-box">
+            <h2>Identificação do Expert</h2>
+            <p>Digite seu nome e matrícula da operação para iniciar a simulação de atendimento.</p>
+            
+            <form onsubmit="startGame(event)">
+                <div class="form-group">
+                    <label>Nome Completo:</label>
+                    <input type="text" id="input-nome" class="form-control" placeholder="Ex: Douglas Nogueira" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Matrícula / ID Teleperformance:</label>
+                    <input type="text" id="input-matricula" class="form-control" placeholder="Ex: 1548920" required>
+                </div>
+
+                <button type="submit" class="btn-olx">Iniciar Simulação</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TELA 2: GAMEPLAY -->
+    <div id="screen-game" class="game-grid hide">
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="client-profile">
+                    <div id="client-avatar" class="client-avatar">😡</div>
+                    <div>
+                        <strong id="client-name" style="font-size: 1.15rem; display: block;">Cliente Indignado</strong>
+                        <span id="client-status" style="font-size: 0.9rem; color: var(--wrong-red); font-weight: bold;">Status: Atritado</span>
+                    </div>
+                </div>
+
+                <div class="hud-metrics-group">
+                    <div id="timer-box" class="timer-badge">⏱️ 60s</div>
+                    <div>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold; display: block;">Paciência</span>
+                        <div class="paciencia-bar-container">
+                            <div id="paciencia-fill" class="paciencia-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chat-messages" class="chat-messages"></div>
+
+            <div id="options-area" class="options-area"></div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-title">🎒 Recursos do Expert</div>
+
+            <div class="item-card">
+                <div class="item-title">☕ Café Empático</div>
+                <div class="item-desc">Recupera +25 de paciência do cliente.</div>
+                <button id="btn-item-cafe" class="btn-item" onclick="useItem('cafe')">Usar (<span id="cnt-cafe">1</span>)</button>
+            </div>
+
+            <div class="item-card">
+                <div class="item-title">🔍 Script de Precisão</div>
+                <div class="item-desc">Elimina 1 alternativa incorreta.</div>
+                <button id="btn-item-script" class="btn-item" onclick="useItem('script')">Usar (<span id="cnt-script">1</span>)</button>
+            </div>
+
+            <div class="item-card">
+                <div class="item-title">🛡️ Escudo de Protocolo</div>
+                <div class="item-desc">Protege contra penalidade no CSAT.</div>
+                <button id="btn-item-escudo" class="btn-item" onclick="useItem('escudo')">Usar (<span id="cnt-escudo">1</span>)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA 3: TELA FINAL -->
+    <div id="screen-ranking" class="screen-pad hide">
+        <div class="login-box" style="max-width: 650px;">
+            <h2>Simulação Concluída!</h2>
+            <p style="font-size: 1.15rem;">O seu atendimento foi registrado com sucesso na plataforma.</p>
+
+            <div class="card-final">
+                <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+                <div class="info-tag">Expert: <span id="final-nome">--</span></div>
+                <div class="info-tag">Matrícula: <span id="final-matricula">--</span></div>
+                <div class="info-tag">CSAT Final: <span id="final-csat">100%</span></div>
+                <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.95rem;">Treinamento concluído e registrado no sistema de capacitação.</p>
+            </div>
+
+            <button class="btn-olx" style="margin-top: 20px;" onclick="location.reload()">Novo Atendimento</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const RetroAudio = {
+        ctx: null,
+        isMuted: false,
+
+        init() {
+            if (!this.ctx) {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+        },
+
+        toggleMute() {
+            this.isMuted = !this.isMuted;
+            return !this.isMuted;
+        },
+
+        playNote(freq, type, duration, gainVal = 0.1) {
+            if (this.isMuted || !this.ctx) return;
+            try {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            } catch (e) {}
+        },
+
+        playCorrect() {
+            if (this.isMuted) return;
+            this.init();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                setTimeout(() => this.playNote(freq, 'square', 0.12, 0.12), idx * 70);
+            });
+        },
+
+        playWrong() {
+            if (this.isMuted) return;
+            this.init();
+            this.playNote(150, 'sawtooth', 0.2, 0.2);
+            setTimeout(() => this.playNote(110, 'sawtooth', 0.25, 0.2), 140);
+        },
+
+        playItem() {
+            if (this.isMuted) return;
+            this.init();
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => this.playNote(400 + (i * 120), 'triangle', 0.08, 0.1), i * 40);
+            }
+        }
+    };
+
+    let player = {
+        nome: '',
+        matricula: '',
+        csat: 100,
+        paciencia: 100,
+        streak: 0,
+        moodLevel: 0, // 0: Atritado (😡), 1: Impaciente (😠), 2: Neutro (😐), 3: Satisfeito (🙂), 4: Encantado (🤩)
+        shieldActive: false,
+        perfectRun: true,
+        items: { cafe: 1, script: 1, escudo: 1 }
+    };
+
+    const clientMoods = [
+        { emoji: "😡", text: "Status: Atritado", color: "var(--wrong-red)" },
+        { emoji: "😠", text: "Status: Impaciente", color: "#f59e0b" },
+        { emoji: "😐", text: "Status: Compreensivo", color: "#eab308" },
+        { emoji: "🙂", text: "Status: Satisfeito", color: "#10b981" },
+        { emoji: "🤩", text: "Status: Encantado", color: "var(--correct-green)" }
+    ];
+
+    const scenarios = [
+        {
+            clientName: "Bruno (Anabolizantes / Conta Banida)",
+            contextInfo: "Contexto: Cliente entra reclamando que a conta foi banida e que outro usuário continua vendendo.",
+            messages: [
+                "Anunciei uma deca, meu anúncio e minha conta foram banidas, mas outra pessoa continua vendendo!",
+                "Quero reativar a conta agora mesmo!!!!!!"
+            ],
+            steps: [
+                {
+                    prompt: "Primeiro contato:",
+                    options: [
+                        { text: "Bruno, vou te explicar com toda a transparência o que aconteceu e te auxiliar da melhor forma possível.", correct: true },
+                        { text: "Bruno, se a outra pessoa continua vendendo, logo ela também será banida. Quanto à sua conta, não podemos fazer nada.", correct: false },
+                        { text: "Para reativar sua conta, basta enviar uma foto com sua receita médica comprovando o uso.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Explicação sobre a conta:",
+                    options: [
+                        { text: "Sua conta foi bloqueada por engano do sistema, pode ficar tranquilo que vou reativar agora.", correct: false },
+                        { text: "Devido à recorrência em descumprir nossa Regra 10 de Anúncios Proibidos, sua conta permanecerá indisponível por tempo indeterminado.", correct: true },
+                        { text: "Você pode criar outra conta com outro CPF para continuar anunciando normalmente.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Identificação dos anúncios:",
+                    options: [
+                        { text: "Estes produtos são liberados se você pagar uma taxa de anúncio em destaque na plataforma.", correct: false },
+                        { text: "Não importa quais foram os itens, o que vale é a sua intenção de venda.", correct: false },
+                        { text: "Os anúncios com itens proibidos são estes:\n- Anabolizantes: Deca / Entrega rápida\n- D3c4 / Resultado rápido\n- DK / Original", correct: true }
+                    ]
+                },
+                {
+                    prompt: "Fundamentação da Regra:",
+                    options: [
+                        { text: "De acordo com a Regra 10, que trata de anúncios não permitidos, o item 10 estabelece que é proibida a venda de suplementos, anabolizantes e/ou esteroides e quaisquer produtos ingeríveis com a proposta de emagrecimento;", correct: true },
+                        { text: "A regra 10 permite anabolizantes desde que sejam voltados para fins estéticos e não médicos.", correct: false },
+                        { text: "A política interna da OLX autoriza a venda de suplementos alimentares sem restrições.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Empatia e encerramento parcial:",
+                    options: [
+                        { text: "Se você não gostou da regra, o problema é inteiramente seu e da sua falta de atenção.", correct: false },
+                        { text: "Sei que essa não é a resposta que você esperava, e lamento pelo impacto que isso possa causar.", correct: true },
+                        { text: "Paciência, as normas são ditadas pela matriz e ninguém pode questionar.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Finalização do atendimento:",
+                    options: [
+                        { text: "Daqui a 3 dias sua conta voltará a funcionar automaticamente no sistema.", correct: false },
+                        { text: "Ligue para o nosso suporte telefônico para tentar reverter a suspensão.", correct: false },
+                        { text: "No momento, devido à suspensão por tempo indeterminado, não temos como informar uma previsão para a reativação da conta.\n\nAgradecemos a sua compreensão e paciência.", correct: true }
+                    ]
+                }
+            ],
+            ruleMsg: "Regra: Proibido: Suplementos, anabolizantes e/ou esteroides e quaisquer produtos ingeríveis com a proposta de emagrecimento;"
+        },
+        {
+            clientName: "Sabrina (Faxina Sexual / Conta Banida)",
+            contextInfo: "Contexto: Você pesquisou no sistema e viu que se trata de uma usuária oferecendo faxina completa, porém de cunho sexual; a conta foi banida.",
+            messages: [
+                "Minha conta foi banida, quero ativar novamente, isso é uma palhaçada."
+            ],
+            steps: [
+                {
+                    prompt: "Primeira abordagem:",
+                    options: [
+                        { text: "Sua conta caiu porque detectamos termos inadequados. Altere a senha e tente novamente.", correct: false },
+                        { text: "Sabrina, o acesso da sua conta foi suspenso porque você inseriu o anúncio 'faço faxina em casa' que está em desacordo com a nossa Regra 10 de 'Anúncios Proibidos'.", correct: true },
+                        { text: "Infelizmente não podemos reativar contas banidas. Procure outra plataforma.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Posicionamento sobre os Termos:",
+                    options: [
+                        { text: "A suspensão dura apenas 24 horas para advertência inicial.", correct: false },
+                        { text: "Você pode pagar uma multa para recuperar o acesso imediatamente.", correct: false },
+                        { text: "Desta maneira, sua conta não foi utilizada de acordo com os Termos e Condições de Uso da OLX e permanecerá indisponível por tempo indeterminado.", correct: true }
+                    ]
+                },
+                {
+                    prompt: "Demonstrando empatia:",
+                    options: [
+                        { text: "Sabemos que essa não é a resposta que você esperava, e lamentamos profundamente qualquer inconveniente que isso possa causar.", correct: true },
+                        { text: "Lamentamos muito, mas quem manda desrespeitar os termos de uso?", correct: false },
+                        { text: "Esse transtorno é culpa exclusiva da moderação automática.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Encerramento e direcionamento:",
+                    options: [
+                        { text: "Acesse nosso site parceiro para anunciar serviços de natureza adulta livremente.", correct: false },
+                        { text: "Nosso objetivo é sempre manter um ambiente seguro e em conformidade com as políticas para todos os nossos usuários.\n\nPara mais informações, sugerimos a leitura do link abaixo:\nhttps://ajuda.olx.com.br/s/article/produtos-e-servicos-proibidos-na-olx", correct: true },
+                        { text: "Não há links de ajuda disponíveis para casos de banimento por conteúdo adulto.", correct: false }
+                    ]
+                }
+            ],
+            ruleMsg: "Regra: Proibido anúncios de serviços sexuais e contrários à política de segurança da OLX."
+        },
+        {
+            clientName: "Leandro (Moedas Olímpicas)",
+            contextInfo: "Contexto: Usuário está vendendo moedas colecionáveis das Olimpíadas de 2016 (circulação vigente), porém a venda é proibida.",
+            messages: [
+                "Estou vendendo essas moedas, meu anúncio foi banido, mas tem outro vendendo e não deu nada, reative meu anúncio agora!!!!"
+            ],
+            steps: [
+                {
+                    prompt: "Primeiro contato:",
+                    options: [
+                        { text: "Se o outro usuário está vendendo, ele será banido em breve. O seu anúncio continuará banido.", correct: false },
+                        { text: "Leandro, vou te explicar com toda a transparência o que aconteceu e te auxiliar da melhor forma possível.", correct: true },
+                        { text: "Reativei seu anúncio para evitar reclamações, cuidado na próxima vez.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Status da conta:",
+                    options: [
+                        { text: "Devido à recorrência em descumprir nossa Regra 10 de Anúncios Proibidos, sua conta permanecerá indisponível por tempo indeterminado.", correct: true },
+                        { text: "O bloqueio ocorreu apenas no anúncio, sua conta segue ativa normalmente.", correct: false },
+                        { text: "Contas suspensas por moedas são liberadas mediante envio de documento.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Listando anúncios afetados:",
+                    options: [
+                        { text: "Apenas moedas de ouro e prata comemorativas são proibidas na plataforma.", correct: false },
+                        { text: "Os anúncios com itens proibidos são estes:\n- Colecionáveis\n- Moedas / Olimpíadas 2016\n- Moedas Comemorativas Olimpíadas 2016\n- Moedas / Coleção completa olimpíadas 2016", correct: true },
+                        { text: "Qualquer moeda antiga sem valor de face pode ser anunciada sem restrições.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Explicando a regra específica:",
+                    options: [
+                        { text: "O item 26 autoriza moedas comemorativas caso tenham mais de 5 anos de emissão.", correct: false },
+                        { text: "Moedas de circulação vigente podem ser trocadas por produtos na OLX Pay.", correct: false },
+                        { text: "De acordo com a Regra 10, que trata de anúncios não permitidos, o item 26 estabelece que é proibida a venda de moedas e cédulas em circulação vigente, independentemente de eventual caráter comemorativo e/ou colecionável;", correct: true }
+                    ]
+                },
+                {
+                    prompt: "Encaminhando documentação de ajuda:",
+                    options: [
+                        { text: "Recomendo a leitura do nosso artigo de Anúncios Proibidos:\nhttps://ajuda.olx.com.br/s/article/produtos-e-servicos-proibidos-na-olx\nhttps://ajuda.olx.com.br/s/article/regras#10", correct: true },
+                        { text: "Consulte nosso blog externo para dicas de numismática e colecionismo.", correct: false },
+                        { text: "Não há artigos de ajuda sobre moedas colecionáveis em circulação.", correct: false }
+                    ]
+                },
+                {
+                    prompt: "Finalização empática:",
+                    options: [
+                        { text: "Você violou as regras intencionalmente, portanto sua conta foi encerrada sem mais explicações.", correct: false },
+                        { text: "Sei que essa não é a resposta que você esperava, e lamento pelo impacto que isso possa causar.\n\nNo momento, devido à suspensão por tempo indeterminado, não temos como informar uma previsão para a reativação da conta.", correct: true },
+                        { text: "Sua conta será analisada novamente em um prazo indeterminado de até 1 ano.", correct: false }
+                    ]
+                }
+            ],
+            ruleMsg: "Regra: Proibido: Moedas e cédulas em circulação vigente."
+        }
+    ];
+
+    let currentScenarioIdx = 0;
+    let currentStepIdx = 0;
+    let timerInterval = null;
+    let timeLeft = 60;
+    let currentOptions = [];
+
+    function toggleAudio() {
+        const isON = RetroAudio.toggleMute();
+        document.getElementById('audio-toggle').innerText = isON ? '🔊 Som: ON' : '🔇 Som: OFF';
+    }
+
+    function shuffleArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function updateClientMood() {
+        const mood = clientMoods[player.moodLevel];
+        document.getElementById('client-avatar').innerText = mood.emoji;
+        const statusEl = document.getElementById('client-status');
+        statusEl.innerText = mood.text;
+        statusEl.style.color = mood.color;
+    }
+
+    function updatePacienciaUI() {
+        const fill = document.getElementById('paciencia-fill');
+        fill.style.width = player.paciencia + '%';
+        if (player.paciencia > 60) {
+            fill.style.backgroundColor = '#22c55e';
+        } else if (player.paciencia > 30) {
+            fill.style.backgroundColor = '#eab308';
+        } else {
+            fill.style.backgroundColor = '#ef4444';
+        }
+    }
+
+    function startGame(e) {
+        e.preventDefault();
+        RetroAudio.init();
+
+        const nome = document.getElementById('input-nome').value.trim();
+        const mat = document.getElementById('input-matricula').value.trim();
+
+        if (!nome || !mat) return;
+
+        player.nome = nome;
+        player.matricula = mat;
+
+        document.getElementById('hud-matricula').innerText = player.matricula;
+        document.getElementById('screen-login').classList.add('hide');
+        document.getElementById('hud-area').classList.remove('hide');
+        document.getElementById('screen-game').classList.remove('hide');
+
+        loadScenario(0);
+    }
+
+    function loadScenario(idx) {
+        currentScenarioIdx = idx;
+        currentStepIdx = 0;
+        player.paciencia = 100;
+        player.moodLevel = 0; // Começa atritado no início do cenário
+        updateClientMood();
+        updatePacienciaUI();
+        
+        const scn = scenarios[currentScenarioIdx];
+        document.getElementById('client-name').innerText = scn.clientName;
+        
+        const chat = document.getElementById('chat-messages');
+        chat.innerHTML = '';
+
+        addChatMessage(scn.contextInfo, 'system');
+        addChatMessage(scn.ruleMsg, 'system');
+
+        scn.messages.forEach(msg => {
+            addChatMessage(msg, 'client');
+        });
+
+        startTimer();
+        renderStep();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 60;
+        document.getElementById('timer-box').innerText = `⏱️ ${timeLeft}s`;
+        
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer-box').innerText = `⏱️ ${timeLeft}s`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeout();
+            }
+        }, 1000);
+    }
+
+    function handleTimeout() {
+        addChatMessage("⏱️ Tempo esgotado para responder!", 'system');
+        penalizePlayer(15);
+        nextStep();
+    }
+
+    function renderStep() {
+        const scn = scenarios[currentScenarioIdx];
+        if (currentStepIdx >= scn.steps.length) {
+            finishScenario();
+            return;
+        }
+
+        const step = scn.steps[currentStepIdx];
+        const optionsArea = document.getElementById('options-area');
+        optionsArea.innerHTML = `<div style="font-weight: bold; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 4px;">${step.prompt}</div>`;
+
+        currentOptions = shuffleArray(step.options);
+
+        currentOptions.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.id = `opt-btn-${i}`;
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt);
+            optionsArea.appendChild(btn);
+        });
+    }
+
+    function selectOption(opt) {
+        clearInterval(timerInterval);
+        addChatMessage(opt.text, 'expert');
+
+        if (opt.correct) {
+            RetroAudio.playCorrect();
+            player.streak++;
+
+            // Mensagem de acerto aleatória
+            const acertoMsgs = ["bom", "excelente"];
+            const msgAcerto = acertoMsgs[Math.floor(Math.random() * acertoMsgs.length)];
+
+            if (player.streak >= 2) {
+                addChatMessage(`✨ ${msgAcerto.toUpperCase()}! 🔥 COMBO: ${player.streak}x acertos seguidos!`, 'system');
+            } else {
+                addChatMessage(`✨ ${msgAcerto.toUpperCase()}!`, 'system');
+            }
+
+            // Melhora a paciência e o emoji do cliente
+            player.paciencia = Math.min(100, player.paciencia + 15);
+            if (player.moodLevel < clientMoods.length - 1) {
+                player.moodLevel++;
+            }
+            updateClientMood();
+            updatePacienciaUI();
+
+        } else {
+            RetroAudio.playWrong();
+            player.streak = 0; // Quebra o combo
+
+            addChatMessage("❌ Que pena, tente novamente.", 'system');
+
+            // Piora o emoji do cliente
+            if (player.moodLevel > 0) {
+                player.moodLevel--;
+            }
+            updateClientMood();
+
+            if (player.shieldActive) {
+                player.shieldActive = false;
+                addChatMessage("🛡️ Escudo de Protocolo absorveu a penalidade no CSAT!", 'system');
+            } else {
+                penalizePlayer(20);
+            }
+        }
+
+        setTimeout(() => {
+            nextStep();
+        }, 1000);
+    }
+
+    function penalizePlayer(amount) {
+        player.paciencia = Math.max(0, player.paciencia - amount);
+        player.csat = Math.max(0, player.csat - 10);
+        player.perfectRun = false;
+        
+        document.getElementById('hud-csat').innerText = `${player.csat}%`;
+        updatePacienciaUI();
+    }
+
+    function nextStep() {
+        currentStepIdx++;
+        const scn = scenarios[currentScenarioIdx];
+        if (currentStepIdx < scn.steps.length) {
+            startTimer();
+            renderStep();
+        } else {
+            finishScenario();
+        }
+    }
+
+    function finishScenario() {
+        clearInterval(timerInterval);
+        
+        if (currentScenarioIdx + 1 < scenarios.length) {
+            addChatMessage("✅ Caso resolvido! Carregando próximo atendimento...", 'system');
+            setTimeout(() => {
+                loadScenario(currentScenarioIdx + 1);
+            }, 2000);
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        document.getElementById('screen-game').classList.add('hide');
+        document.getElementById('screen-ranking').classList.remove('hide');
+
+        document.getElementById('final-nome').innerText = player.nome;
+        document.getElementById('final-matricula').innerText = player.matricula;
+        document.getElementById('final-csat').innerText = `${player.csat}%`;
+    }
+
+    function addChatMessage(text, type) {
+        const chat = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = `msg msg-${type}`;
+        div.innerText = text;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function useItem(type) {
+        if (player.items[type] <= 0) return;
+
+        if (type === 'cafe') {
+            player.items.cafe--;
+            document.getElementById('cnt-cafe').innerText = player.items.cafe;
+            document.getElementById('btn-item-cafe').disabled = true;
+            
+            player.paciencia = Math.min(100, player.paciencia + 25);
+            if (player.moodLevel < clientMoods.length - 1) {
+                player.moodLevel++;
+            }
+            updateClientMood();
+            updatePacienciaUI();
+            
+            RetroAudio.playItem();
+            addChatMessage("☕ Você usou Café Empático: +25 de Paciência!", 'system');
+
+        } else if (type === 'script') {
+            const wrongIndex = currentOptions.findIndex(o => !o.correct);
+            if (wrongIndex !== -1) {
+                player.items.script--;
+                document.getElementById('cnt-script').innerText = player.items.script;
+                document.getElementById('btn-item-script').disabled = true;
+
+                const btn = document.getElementById(`opt-btn-${wrongIndex}`);
+                if (btn) {
+                    btn.disabled = true;
+                    btn.style.textDecoration = 'line-through';
+                    btn.style.opacity = '0.4';
+                }
+
+                RetroAudio.playItem();
+                addChatMessage("🔍 Script de Precisão eliminou 1 opção incorreta!", 'system');
+            }
+
+        } else if (type === 'escudo') {
+            player.items.escudo--;
+            document.getElementById('cnt-escudo').innerText = player.items.escudo;
+            document.getElementById('btn-item-escudo').disabled = true;
+            
+            player.shieldActive = true;
+            RetroAudio.playItem();
+            addChatMessage("🛡️ Escudo de Protocolo ativado para o próximo erro!", 'system');
+        }
+    }
+</script>
+
+</body>
+</html>
